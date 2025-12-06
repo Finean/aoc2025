@@ -1,4 +1,3 @@
-use std::cmp;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -28,15 +27,13 @@ fn part_1(input: Vec<String>) -> u64 {
     //Format input into arrays
     for (ix, line) in input.iter().enumerate() {
         if ix < input.len() - 1 {
-            let mut split: Vec<u64> = line
+            let split: Vec<u64> = line
                 .split_whitespace()
                 .map(|x| x.parse::<u64>().unwrap())
                 .collect::<Vec<u64>>();
-            println!("{:?}", split);
             lines.push(split);
         } else {
             ops = line.split_whitespace().collect::<Vec<&str>>();
-            println!("{:?}", ops);
         }
     }
 
@@ -56,7 +53,7 @@ fn part_1(input: Vec<String>) -> u64 {
         }
     }
 
-    println!("Total sum: {}", sum);
+    println!("Total sum part 1: {}", sum);
     sum
 }
 
@@ -68,7 +65,6 @@ fn part_2(input: Vec<String>) -> u64 {
     for (ix, line) in input.iter().enumerate() {
         if ix < input.len() - 1 {
             let split: Vec<char> = line.chars().collect();
-            println!("{:?}", split);
             char_lines.push(split);
         }
     }
@@ -102,14 +98,12 @@ fn part_2(input: Vec<String>) -> u64 {
             if whitespace {
                 break;
             }
-            println!("{:?}", digits);
             let num = digits
                 .into_iter()
                 .filter(|&c| c != ' ')
                 .collect::<String>()
                 .parse::<u64>()
                 .unwrap();
-            println!("{}", num);
             if op == '*' {
                 if offset == 0 {
                     val = num;
@@ -124,7 +118,7 @@ fn part_2(input: Vec<String>) -> u64 {
         sum += val;
     }
 
-    println!("Total sum: {}", sum);
+    println!("Total sum part 2: {}", sum);
     sum
 }
 
