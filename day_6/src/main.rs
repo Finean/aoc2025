@@ -20,6 +20,8 @@ fn read_file(name: &str) -> std::io::Result<Vec<String>> {
 }
 
 fn part_1(input: Vec<String>) -> u64 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u64 = 0;
     let mut lines: Vec<Vec<u64>> = vec![];
     let mut ops: Vec<&str> = vec![];
@@ -52,12 +54,15 @@ fn part_1(input: Vec<String>) -> u64 {
             sum += x;
         }
     }
-
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total sum part 1: {}", sum);
     sum
 }
 
 fn part_2(input: Vec<String>) -> u64 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u64 = 0;
     let mut char_lines: Vec<Vec<char>> = vec![];
 
@@ -117,7 +122,8 @@ fn part_2(input: Vec<String>) -> u64 {
         }
         sum += val;
     }
-
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total sum part 2: {}", sum);
     sum
 }
