@@ -1,7 +1,9 @@
-use std::fs;
 use std::collections::HashSet;
+use std::fs;
 
 fn main() -> std::io::Result<()> {
+    use std::time::Instant;
+    let now = Instant::now();
     let content = fs::read_to_string("input.txt")?;
     let ranges: Vec<&str> = content.trim().split(',').collect();
 
@@ -22,12 +24,12 @@ fn main() -> std::io::Result<()> {
             sum_2 += p2_invalid_sum(start, end, start_len, end_len);
         }
     }
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Part 1 Sum: {}", sum);
     println!("Part 2 Sum: {}", sum_2);
     Ok(())
-
 }
-
 
 fn p1_invalid_sum(min: u64, max: u64, base_min: u32, base_max: u32) -> u64 {
     let mut sum: u64 = 0;
@@ -92,8 +94,7 @@ fn sum_inv(min: u64, max: u64, base: u32) -> u64 {
     sum
 }
 
-
-fn p2_invalid_sum(min: u64, max: u64, base_min: u32, base_max:u32) -> u64{
+fn p2_invalid_sum(min: u64, max: u64, base_min: u32, base_max: u32) -> u64 {
     let mut sum: u64 = 0;
     let mut seen: HashSet<u64> = HashSet::new();
 
@@ -116,13 +117,11 @@ fn p2_invalid_sum(min: u64, max: u64, base_min: u32, base_max:u32) -> u64{
                 if seen.insert(int) {
                     sum += int
                 }
-            
             }
         }
     }
     sum
 }
-
 
 fn reconstruct(val: u64, divi: u32) -> u64 {
     let mut sum: u64 = 0;
@@ -134,8 +133,8 @@ fn reconstruct(val: u64, divi: u32) -> u64 {
     sum
 }
 
-
-fn chunk_count(base: &u32) -> Vec<u32> { //Returns possible lengths of sequences to check
+fn chunk_count(base: &u32) -> Vec<u32> {
+    //Returns possible lengths of sequences to check
     let mut divs = Vec::new();
     //Number of digits in val
     let length = (base + 1) as u32;
