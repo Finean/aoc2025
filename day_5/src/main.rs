@@ -21,6 +21,8 @@ fn read_file(name: &str) -> std::io::Result<Vec<String>> {
 }
 
 fn part_1(input: Vec<String>) -> u32 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u32 = 0;
     let mut inputsplit: usize = 0;
     let mut fresh_ranges: Vec<Vec<u64>> = vec![];
@@ -31,7 +33,7 @@ fn part_1(input: Vec<String>) -> u32 {
             break;
         }
         let range: Vec<u64> = line.split('-').map(|x| x.parse::<u64>().unwrap()).collect();
-        let mut ext_range: Vec<u64> = vec![range[0] - 1, range[1] + 1];
+        let ext_range: Vec<u64> = vec![range[0] - 1, range[1] + 1];
         match binrangesearch(&fresh_ranges, &ext_range) {
             Ok(mut pos) => {
                 fresh_ranges[pos] = unionrange(&fresh_ranges[pos], &range);
@@ -79,22 +81,24 @@ fn part_1(input: Vec<String>) -> u32 {
             Err(_pos) => {}
         }
     }
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total fresh: {}", sum);
     sum
 }
 
 fn part_2(input: Vec<String>) -> u64 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u64 = 0;
-    let mut inputsplit: usize = 0;
     let mut fresh_ranges: Vec<Vec<u64>> = vec![];
 
-    for (ix, line) in input.iter().enumerate() {
+    for (_, line) in input.iter().enumerate() {
         if line.is_empty() {
-            inputsplit = ix + 1 as usize;
             break;
         }
         let range: Vec<u64> = line.split('-').map(|x| x.parse::<u64>().unwrap()).collect();
-        let mut ext_range: Vec<u64> = vec![range[0] - 1, range[1] + 1];
+        let ext_range: Vec<u64> = vec![range[0] - 1, range[1] + 1];
         match binrangesearch(&fresh_ranges, &ext_range) {
             Ok(mut pos) => {
                 fresh_ranges[pos] = unionrange(&fresh_ranges[pos], &range);
@@ -138,6 +142,8 @@ fn part_2(input: Vec<String>) -> u64 {
     for range in fresh_ranges {
         sum += 1 + range[1] - range[0];
     }
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total fresh IDs: {}", sum);
     sum
 }
