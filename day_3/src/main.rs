@@ -1,99 +1,149 @@
-use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::collections::HashSet;
+use std::fs;
 
+fn main() -> std::io::Result<()> {
+    use std::time::Instant;
+    let now = Instant::now();
+    let content = fs::read_to_string("input.txt")?;
+    let ranges: Vec<&str> = content.trim().split(',').collect();
 
+    println!("{:?}", ranges);
 
-fn main() {
-    part_1();
-    part_2();
+    let mut sum = 0;
+    let mut sum_2 = 0;
+    for r in ranges {
+        let parts: Vec<&str> = r.split('-').collect();
+        if parts.len() == 2 {
+            println!("{:?}", parts);
+            let start: u64 = parts[0].parse().unwrap();
+            let end: u64 = parts[1].parse().unwrap();
+            let start_len = (parts[0].len() - 1) as u32;
+            let end_len = (parts[1].len() - 1) as u32;
+
+            sum += p1_invalid_sum(start, end, start_len, end_len);
+            sum_2 += p2_invalid_sum(start, end, start_len, end_len);
+        }
+    }
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
+    println!("Part 1 Sum: {}", sum);
+    println!("Part 2 Sum: {}", sum_2);
+    Ok(())
 }
 
+fn p1_invalid_sum(min: u64, max: u64, base_min: u32, base_max: u32) -> u64 {
+    let mut sum: u64 = 0;
 
-fn part_1() -> io::Result<()> {
-    let file = File::open("input.txt")?;
-    let reader = BufReader::new(file);
+    if base_min == base_max {
+        if base_min % 2 == 0 {
+            return 0;
+        }
+        let i_min = min / 10u64.pow(1 + (base_min / 2));
+        let i_max = max / 10u64.pow(1 + (base_max / 2));
 
-    let mut output = 0;
-    
-    for line_result in reader.lines() {
-        let line = line_result?; //Result<String, io::Error>
-        let bank_size = line.len();
-        
-        println!("{}", line);
-        let mut max_digit: u32 = 0;
-        let mut second_digit: u32 = 0;
-
-        for (ix, cur_char) in line.chars().enumerate() {
-            let digit = u32::from(cur_char) - u32::from('0');
-            if ix < (bank_size - 1) && digit > max_digit {
-                max_digit = digit;
-                second_digit = 0;
+        if i_min == i_max {
+            let val = i_min * 10u64.pow(1 + base_min / 2) + i_min;
+            if min <= val && val <= max {
+                return val;
+            } else {
+                return 0;
             }
-            else if digit > second_digit || (ix == bank_size - 1 && second_digit == 0) {
-                second_digit = digit;
-            }
-
+        } else {
+            sum += sum_inv(i_min, i_max, base_min);
         }
 
-        let tmp_val = max_digit * 10 + second_digit;
-        println!("{}, {}, {}", max_digit, second_digit, tmp_val);
-        output += tmp_val;
+        let val_min = i_min * 10u64.pow(1 + base_min / 2) + i_min;
+        let val_max = i_max * 10u64.pow(1 + base_max / 2) + i_max;
 
+        if val_min < min {
+            sum -= val_min;
+        }
+        if val_max > max {
+            sum -= val_max;
+        }
+        return sum;
     }
 
-    println!("Total output: {}", output);
-    Ok(())
-
+    for base in base_min..=base_max {
+        if base % 2 == 0 {
+            continue;
+        }
+        if base == base_min {
+            let i_min = min / 10u64.pow(1 + base_min / 2);
+            let i_max = 10u64.pow(1 + base / 2) - 1;
+            sum += sum_inv(i_min, i_max, base);
+        } else if base == base_max {
+            let i_min = 10u64.pow(base / 2);
+            let i_max = max / 10u64.pow(1 + base_max / 2);
+            sum += sum_inv(i_min, i_max, base);
+        } else {
+            let i_min = 10u64.pow(base / 2);
+            let i_max = i_min * 10 - 1;
+            sum += sum_inv(i_min, i_max, base);
+        }
+    }
+    sum
 }
 
+fn sum_inv(min: u64, max: u64, base: u32) -> u64 {
+    let mut sum: u64 = 0;
+    for i in min..=max {
+        let val = i * 10u64.pow(base / 2 + 1) + i;
+        sum += val;
+    }
+    sum
+}
 
-fn part_2() -> io::Result<()> {
-    let file = File::open("input.txt")?;
-    let reader = BufReader::new(file);
+fn p2_invalid_sum(min: u64, max: u64, base_min: u32, base_max: u32) -> u64 {
+    let mut sum: u64 = 0;
+    let mut seen: HashSet<u64> = HashSet::new();
 
-    let mut output: u64 = 0;
+    for base in base_min..=base_max {
+        //Divisors to check
+        let divs = chunk_count(&base);
+        for divisor in divs {
+            let str_len = (base + 1) / divisor;
+            let min_val = 10u64.pow(str_len - 1);
+            let max_val = 10u64.pow(str_len) - 1;
 
-
-    for line_result in reader.lines() {
-        let line = line_result?; //Result<String, io::Error>
-        let bank_size = line.len();
-        
-        println!("{}", line);
-
-        let mut digits: [u32; 12]  = [0; 12];
-        let mut max_digit: u32 = 0;
-        let mut second_digit: u32 = 0;
-
-        for (ix, cur_char) in line.chars().enumerate() {
-            let digit = u32::from(cur_char) - u32::from('0');
-            for cell in 0..12 {
-                //If valid for 12 activations and larger than current digit
-                if ix <= (bank_size - 12 + cell) && digit > digits[cell] {
-                    digits[cell] = digit;
-                    digits[cell+1..].fill(0);
-                    //Break so only most significant digit is changed
-                    break;
-                } else if ix == (bank_size - 12 + cell) && digits[cell] == 0 {
-                    digits[cell] = digit;
-                    digits[cell+1..].fill(0);
+            for val in min_val..=max_val {
+                let int: u64 = reconstruct(val, divisor);
+                if int > max {
                     break;
                 }
+                if int < min {
+                    continue;
+                }
+                if seen.insert(int) {
+                    sum += int
+                }
             }
-
         }
-
-        
-        let mut result: u64 = 0;
-        for x in digits {
-            result *= 10;
-            result += x as u64;
-        }
-        println!("{:?}, {}", digits, result);
-        output += result;
-
     }
+    sum
+}
 
-    println!("Total output: {}", output);
-    Ok(())
+fn reconstruct(val: u64, divi: u32) -> u64 {
+    let mut sum: u64 = 0;
+    let base = val.to_string().len() as u32;
+    for _ in 0..divi {
+        sum *= 10u64.pow(base) as u64;
+        sum += val;
+    }
+    sum
+}
 
+fn chunk_count(base: &u32) -> Vec<u32> {
+    //Returns possible lengths of sequences to check
+    let mut divs = Vec::new();
+    //Number of digits in val
+    let length = (base + 1) as u32;
+
+    for i in 2..=length {
+        //If i divides length
+        if (base + 1) % i == 0 {
+            divs.push(i);
+        }
+    }
+    divs
 }
