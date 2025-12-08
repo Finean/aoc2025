@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use rustc_hash::FxHashSet;
 use std::fs;
 
 fn main() -> std::io::Result<()> {
@@ -7,14 +7,11 @@ fn main() -> std::io::Result<()> {
     let content = fs::read_to_string("input.txt")?;
     let ranges: Vec<&str> = content.trim().split(',').collect();
 
-    println!("{:?}", ranges);
-
     let mut sum = 0;
     let mut sum_2 = 0;
     for r in ranges {
         let parts: Vec<&str> = r.split('-').collect();
         if parts.len() == 2 {
-            println!("{:?}", parts);
             let start: u64 = parts[0].parse().unwrap();
             let end: u64 = parts[1].parse().unwrap();
             let start_len = (parts[0].len() - 1) as u32;
@@ -96,7 +93,7 @@ fn sum_inv(min: u64, max: u64, base: u32) -> u64 {
 
 fn p2_invalid_sum(min: u64, max: u64, base_min: u32, base_max: u32) -> u64 {
     let mut sum: u64 = 0;
-    let mut seen: HashSet<u64> = HashSet::new();
+    let mut seen = FxHashSet::default();
 
     for base in base_min..=base_max {
         //Divisors to check
