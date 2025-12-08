@@ -20,6 +20,8 @@ fn read_file(name: &str) -> std::io::Result<Vec<String>> {
 }
 
 fn part_1(input: Vec<String>) -> u64 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u64 = 0;
     let lines: Vec<Vec<char>> = input.into_iter().map(|x| x.chars().collect()).collect();
 
@@ -54,11 +56,15 @@ fn part_1(input: Vec<String>) -> u64 {
             }
         }
     }
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total splits part 1: {}", sum);
     sum
 }
 
 fn part_2(input: Vec<String>) -> u64 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u64 = 0;
     let lines: Vec<Vec<char>> = input.into_iter().map(|x| x.chars().collect()).collect();
 
@@ -98,6 +104,8 @@ fn part_2(input: Vec<String>) -> u64 {
             }
         }
     }
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total splits part 2: {}", sum);
     sum
 }
