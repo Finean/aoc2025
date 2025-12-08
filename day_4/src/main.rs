@@ -20,6 +20,8 @@ fn read_file(name: &str) -> std::io::Result<Vec<String>> {
 }
 
 fn part_1(input: Vec<String>) -> u32 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u32 = 0;
 
     for row in 0..input.len() {
@@ -54,12 +56,15 @@ fn part_1(input: Vec<String>) -> u32 {
             }
         }
     }
-
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total sum: {}", sum);
     sum
 }
 
 fn part_2(mut input: Vec<String>) -> u32 {
+    use std::time::Instant;
+    let now = Instant::now();
     let mut sum: u32 = 0;
     loop {
         let mut removed = 0;
@@ -105,6 +110,8 @@ fn part_2(mut input: Vec<String>) -> u32 {
             break;
         }
     }
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
     println!("Total sum: {}", sum);
     sum
 }
