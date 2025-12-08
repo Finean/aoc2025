@@ -1,7 +1,6 @@
 use rayon::prelude::*;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::mem;
 
 use std::collections::{HashMap, HashSet};
 
@@ -184,7 +183,7 @@ fn part_1(input: Vec<String>, n_connections: usize) -> u64 {
 
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
-    println!("Product of 3 largest circuits: {}", sum);
+    println!("Product of x coords: {}", sum);
     sum
 }
 
