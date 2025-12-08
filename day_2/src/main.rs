@@ -1,14 +1,12 @@
 use rustc_hash::FxHashSet;
 use std::fs;
+use std::time::Instant;
 
-fn main() -> std::io::Result<()> {
-    use std::time::Instant;
+fn part_1(input: &str) -> u64 {
     let now = Instant::now();
-    let content = fs::read_to_string("input.txt")?;
-    let ranges: Vec<&str> = content.trim().split(',').collect();
-
+    let ranges: Vec<&str> = input.trim().split(',').collect();
     let mut sum = 0;
-    let mut sum_2 = 0;
+
     for r in ranges {
         let parts: Vec<&str> = r.split('-').collect();
         if parts.len() == 2 {
@@ -18,13 +16,41 @@ fn main() -> std::io::Result<()> {
             let end_len = (parts[1].len() - 1) as u32;
 
             sum += p1_invalid_sum(start, end, start_len, end_len);
-            sum_2 += p2_invalid_sum(start, end, start_len, end_len);
+        }
+    }
+
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
+    println!("Part 1 Sum: {}", sum);
+    sum
+}
+
+fn part_2(input: &str) -> u64 {
+    let now = Instant::now();
+    let ranges: Vec<&str> = input.trim().split(',').collect();
+    let mut sum = 0;
+
+    for r in ranges {
+        let parts: Vec<&str> = r.split('-').collect();
+        if parts.len() == 2 {
+            let start: u64 = parts[0].parse().unwrap();
+            let end: u64 = parts[1].parse().unwrap();
+            let start_len = (parts[0].len() - 1) as u32;
+            let end_len = (parts[1].len() - 1) as u32;
+
+            sum += p2_invalid_sum(start, end, start_len, end_len);
         }
     }
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
-    println!("Part 1 Sum: {}", sum);
-    println!("Part 2 Sum: {}", sum_2);
+    println!("Part 2 Sum: {}", sum);
+    sum
+}
+
+fn main() -> std::io::Result<()> {
+    let content = fs::read_to_string("input.txt")?;
+    let _sum_1 = part_1(&content);
+    let _sum_2 = part_2(&content);
     Ok(())
 }
 
@@ -143,4 +169,24 @@ fn chunk_count(base: &u32) -> Vec<u32> {
         }
     }
     divs
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn test_part_1_with_test_file() {
+        let content = fs::read_to_string("test.txt").expect("Failed to read test.txt");
+        let result = part_1(&content);
+        assert_eq!(result, 1227775554);
+    }
+
+    #[test]
+    fn test_part_2_with_test_file() {
+        let content = fs::read_to_string("test.txt").expect("Failed to read test.txt");
+        let result = part_2(&content);
+        assert_eq!(result, 4174379265);
+    }
 }
