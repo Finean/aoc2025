@@ -121,6 +121,7 @@ fn read_file(name: &str) -> std::io::Result<Vec<String>> {
 fn part_1(input: Vec<String>, n_connections: usize) -> u64 {
     use std::time::Instant;
     let now = Instant::now();
+    let cutoff = 100_000_000;
 
     //convert to Vec<Vec<u32>>
     let lines: Vec<[i32; 3]> = input
@@ -145,7 +146,9 @@ fn part_1(input: Vec<String>, n_connections: usize) -> u64 {
             let dy: i64 = (py - ay) as i64;
             let dz: i64 = (pz - az) as i64;
             let dist = dx * dx + dy * dy + dz * dz;
-            distances.push((dist, ix, apx));
+            if dist < cutoff {
+                distances.push((dist, ix, apx));
+            }
         }
     }
     //Calculate minimum n_connections distances
@@ -191,6 +194,7 @@ fn part_2(input: Vec<String>) -> i64 {
     use std::time::Instant;
     let now = Instant::now();
     let mut sum: i64 = 0;
+    let cutoff = 250_000_000;
 
     //convert to Vec<Vec<u32>>
 
@@ -216,7 +220,9 @@ fn part_2(input: Vec<String>) -> i64 {
             let dy: i64 = (py - ay) as i64;
             let dz: i64 = (pz - az) as i64;
             let dist = dx * dx + dy * dy + dz * dz;
-            distances.push((dist, ix, apx));
+            if dist < cutoff {
+                distances.push((dist, ix, apx));
+            }
         }
     }
 
