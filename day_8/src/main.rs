@@ -220,7 +220,7 @@ fn part_2(input: Vec<String>) -> i64 {
         }
     }
 
-    distances.par_sort_by_key(|&(x, _, _)| x);
+    distances.sort_unstable_by_key(|&(x, _, _)| x);
 
     if let Some(x) = last_merge_x_coords(&lines, &distances) {
         sum = (x.0 * x.1) as i64;
