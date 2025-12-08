@@ -152,26 +152,8 @@ fn part_1(input: Vec<String>, n_connections: usize) -> u64 {
         }
     }
     //Calculate minimum n_connections distances
-    let mut minix: Vec<(i64, usize, usize)> = Vec::with_capacity(n_connections);
-
-    for ix in 0..distances.len() {
-        let cur_dist = distances[ix];
-        if cur_dist.0 == 0 {
-            continue;
-        }
-        if minix.len() < n_connections {
-            let idx = minix
-                .binary_search_by_key(&cur_dist.0, |&(a, _, _)| a)
-                .unwrap_or_else(|i| i);
-            minix.insert(idx, cur_dist);
-        } else if cur_dist.0 < minix.last().unwrap().0 {
-            let idx = minix
-                .binary_search_by_key(&cur_dist.0, |&(a, _, _)| a)
-                .unwrap_or_else(|i| i);
-            minix.insert(idx, cur_dist);
-            minix.pop();
-        }
-    }
+    distances.sort_unstable_by_key(|&(x, _, _)| x);
+    let minix = distances[0..1000].to_vec();
 
     let circuits = build_circuits_from_edges(&minix);
     //println!("{:?}", circuits);
