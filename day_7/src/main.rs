@@ -98,7 +98,7 @@ fn part_2(input: Vec<String>) -> u64 {
             }
         }
     }
-    println!("Total splits part 1: {}", sum);
+    println!("Total splits part 2: {}", sum);
     sum
 }
 
