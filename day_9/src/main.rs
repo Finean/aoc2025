@@ -60,11 +60,13 @@ fn part_1(input: Vec<String>) -> u64 {
     max_area
 }
 
+use std::collections::HashSet;
+
 fn part_2(input: Vec<String>) -> u64 {
     use std::time::Instant;
     let now = Instant::now();
     //Max dimension of array
-    let range = 100000;
+    const MAX_COORD: u32 = 100000;
 
     //convert to Vec<[i32; 2]>
     let lines: Vec<[i32; 2]> = input
@@ -74,9 +76,12 @@ fn part_2(input: Vec<String>) -> u64 {
                 .split(',')
                 .map(|num| num.parse::<i32>().unwrap())
                 .collect();
-            nums.try_into().unwrap() // convert Vec<i32> into [i32; 3]
+            nums.try_into().unwrap() // convert Vec<i32> into [i32; 2]
         })
         .collect();
+
+    // Create HashSet for O(1) lookups
+    let lines_set: HashSet<[i32; 2]> = lines.iter().copied().collect();
 
     let n_points = lines.len();
     let mut edges: Vec<u64> = vec![];
@@ -92,13 +97,13 @@ fn part_2(input: Vec<String>) -> u64 {
             let y_start = point[1].min(next_point[1]);
             let y_end = point[1].max(next_point[1]);
             for y in y_start..=y_end {
-                edges.push(lincoord(point[0], y, range));
+                edges.push(lincoord(point[0], y, MAX_COORD));
             }
         } else {
             let x_start = point[0].min(next_point[0]);
             let x_end = point[0].max(next_point[0]);
             for x in x_start..=x_end {
-                horiz.push(lincoord(point[1], x, range));
+                horiz.push(lincoord(point[1], x, MAX_COORD));
             }
         }
     }
@@ -106,7 +111,7 @@ fn part_2(input: Vec<String>) -> u64 {
     edges.sort();
     horiz.sort();
     //Sort by key (a, _)
-    let mut bound: u32 = 2;
+    let mut bound: u32 = 4;
     let mut max_area: u64 = 0;
 
     for (ix, point) in lines.iter().enumerate() {
@@ -121,7 +126,7 @@ fn part_2(input: Vec<String>) -> u64 {
             if area > max_area {
                 //And check other corners!
                 //points are point[0]trial[1], point[1]trial[0]
-                if valid_rect(point, &trial, &edges, &horiz, &lines) {
+                if valid_rect(point, &trial, &edges, &horiz, &lines_set) {
                     max_area = area;
                     bound = max_area.isqrt() as u32;
                 }
@@ -147,9 +152,9 @@ fn fromlin(x: u64, max_coord: u32) -> [i32; 2] {
 fn valid_rect(
     px: &[i32; 2],
     py: &[i32; 2],
-    edges: &Vec<u64>,
-    horiz: &Vec<u64>,
-    lines: &Vec<[i32; 2]>,
+    edges: &[u64],
+    horiz: &[u64],
+    lines: &HashSet<[i32; 2]>,
 ) -> bool {
     //px and py assumed
     //horiz has reversed indices (y, x)
@@ -172,43 +177,33 @@ fn valid_horiz(
     x_end: i32,
     y: i32,
     top: bool,
-    edges: &Vec<u64>,
-    lines: &Vec<[i32; 2]>,
+    edges: &[u64],
+    lines: &HashSet<[i32; 2]>,
 ) -> bool {
-    let max_coord = 100000;
-    let linc = lincoord(x_start, y, max_coord);
-    let lbix: usize;
-    match edges.binary_search_by(|x| x.cmp(&linc)) {
-        Ok(pos) => lbix = pos,
-        Err(pos) => lbix = pos,
-    };
+    const MAX_COORD: u32 = 100000;
+    let linc = lincoord(x_start, y, MAX_COORD);
+    let mut eix = edges.binary_search(&linc).unwrap_or_else(|pos| pos);
+    //Check along non-corner part of horizontal edge of rectangle
     let mut interior = true;
-    let mut eix = lbix;
-    loop {
-        if eix >= edges.len() {
-            break;
-        }
-        let [cur_x, cur_y] = fromlin(edges[eix], max_coord);
+    let offset = if top { -1 } else { 1 };
+    while eix < edges.len() {
+        let [cur_x, cur_y] = fromlin(edges[eix], MAX_COORD);
         if cur_y != y || cur_x >= x_end {
             break;
         }
-        if cur_x < x_start {
-            eix += 1;
-            continue;
-        } else {
+        if cur_x >= x_start {
             if lines.contains(&[cur_x, y]) {
-                let t = if top { -1 } else { 1 };
-                let new_linc = lincoord(cur_x, y + t, max_coord);
-                match edges.binary_search_by(|x| x.cmp(&new_linc)) {
-                    Ok(_) => interior = !interior,
-                    Err(_) => {}
+                let new_linc = lincoord(cur_x, y + offset, MAX_COORD);
+                if edges.binary_search(&new_linc).is_ok() {
+                    interior = !interior;
                 }
             } else {
                 interior = !interior;
             }
-        }
-        if !interior {
-            return false;
+
+            if !interior {
+                return false;
+            }
         }
         eix += 1;
     }
@@ -220,45 +215,38 @@ fn valid_vert(
     y_end: i32,
     x: i32,
     left: bool,
-    horiz: &Vec<u64>,
-    lines: &Vec<[i32; 2]>,
+    horiz: &[u64],
+    lines: &HashSet<[i32; 2]>,
 ) -> bool {
-    let max_coord = 100000;
-    let invc = lincoord(y_start, x, max_coord);
-    let lbix: usize;
-    match horiz.binary_search_by(|x| x.cmp(&invc)) {
-        Ok(pos) => lbix = pos,
-        Err(pos) => lbix = pos,
-    };
-    //Check first point on line
+    const MAX_COORD: u32 = 100000;
+    let invc = lincoord(y_start, x, MAX_COORD);
+    let mut hix = horiz.binary_search(&invc).unwrap_or_else(|pos| pos);
+    //Check along non-corner part of vertical edge of rectangle
     let mut interior = true;
-    let mut hix = lbix;
-    loop {
-        if hix >= horiz.len() {
-            break;
-        }
-        let [cur_y, cur_x] = fromlin(horiz[hix], max_coord);
+    let offset = if left { 1 } else { -1 };
+    while hix < horiz.len() {
+        let [cur_y, cur_x] = fromlin(horiz[hix], MAX_COORD);
+
+        // Early exit conditions
         if cur_x != x || cur_y >= y_end {
             break;
         }
-        if cur_y < y_start {
-            hix += 1;
-            continue;
-        } else {
+
+        if cur_y >= y_start {
             if lines.contains(&[x, cur_y]) {
-                let t = if left { 1 } else { -1 };
-                let new_linc = lincoord(cur_y, x + t, max_coord);
-                match horiz.binary_search_by(|x| x.cmp(&new_linc)) {
-                    Ok(_) => interior = !interior,
-                    Err(_) => {}
+                let new_linc = lincoord(cur_y, x + offset, MAX_COORD);
+                if horiz.binary_search(&new_linc).is_ok() {
+                    interior = !interior;
                 }
             } else {
                 interior = !interior;
             }
+
+            if !interior {
+                return false;
+            }
         }
-        if !interior {
-            return false;
-        }
+
         hix += 1;
     }
     true
