@@ -153,7 +153,7 @@ fn part_1(input: Vec<String>, n_connections: usize) -> u64 {
     }
     //Calculate minimum n_connections distances
     distances.sort_unstable_by_key(|&(x, _, _)| x);
-    let minix = distances[0..1000].to_vec();
+    let minix = distances[0..n_connections].to_vec();
 
     let circuits = build_circuits_from_edges(&minix);
     //println!("{:?}", circuits);
