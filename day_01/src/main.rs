@@ -17,16 +17,12 @@ fn part_1(input: &str) -> i32 {
         let number: i32 = number_str.parse().unwrap();
 
         if first_char == 'L' {
-            pos -= number % 100;
+            pos -= number;
         } else {
-            pos += number % 100;
+            pos += number;
         }
 
         pos %= 100;
-        if pos < 0 {
-            pos += 100;
-        }
-
         if pos == 0 {
             ctr += 1;
         }
