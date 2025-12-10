@@ -28,11 +28,8 @@ fn part_1(input: Vec<String>) -> u64 {
     let lines: Vec<[i32; 2]> = input
         .iter()
         .map(|line| {
-            let nums: Vec<i32> = line
-                .split(',')
-                .map(|num| num.parse::<i32>().unwrap())
-                .collect();
-            nums.try_into().unwrap() // convert Vec<i32> into [i32; 3]
+            let mut nums = line.split(',').map(|num| num.parse::<i32>().unwrap());
+            [nums.next().unwrap(), nums.next().unwrap()]
         })
         .collect();
 
@@ -72,11 +69,8 @@ fn part_2(input: Vec<String>) -> u64 {
     let lines: Vec<[i32; 2]> = input
         .iter()
         .map(|line| {
-            let nums: Vec<i32> = line
-                .split(',')
-                .map(|num| num.parse::<i32>().unwrap())
-                .collect();
-            nums.try_into().unwrap() // convert Vec<i32> into [i32; 2]
+            let mut nums = line.split(',').map(|num| num.parse::<i32>().unwrap());
+            [nums.next().unwrap(), nums.next().unwrap()]
         })
         .collect();
 
@@ -139,16 +133,19 @@ fn part_2(input: Vec<String>) -> u64 {
     max_area
 }
 
+#[inline]
 fn lincoord(x: i32, y: i32, max_coord: u32) -> u64 {
     (y as u64) * (max_coord as u64) + (x as u64)
 }
 
+#[inline]
 fn fromlin(x: u64, max_coord: u32) -> [i32; 2] {
     let dx = x % max_coord as u64;
     let dy = x / max_coord as u64;
     [dx as i32, dy as i32]
 }
 
+#[inline]
 fn valid_rect(
     px: &[i32; 2],
     py: &[i32; 2],
