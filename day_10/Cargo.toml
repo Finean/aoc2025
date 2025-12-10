@@ -1,0 +1,7 @@
+[package]
+name = "day_10"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+good_lp = { version = "1.14.2" , features = ["lp-solvers"] }
