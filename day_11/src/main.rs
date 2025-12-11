@@ -60,13 +60,18 @@ fn part_2(input: Vec<String>) -> u64 {
         let key = line[0].strip_suffix(":").unwrap();
         keymap.insert(key.to_string(), ix as usize);
     }
-    let dac = count_paths("svr", "dac", &lines, &keymap);
-    let fft = count_paths("svr", "fft", &lines, &keymap);
-    let df = count_paths("dac", "fft", &lines, &keymap);
-    let fd = count_paths("fft", "dac", &lines, &keymap);
-    let fout = count_paths("fft", "out", &lines, &keymap);
-    let dout = count_paths("dac", "out", &lines, &keymap);
-    let output = dac * df * fout + fft * fd * dout;
+    let mut dac = count_paths("dac", "fft", &lines, &keymap);
+    if dac != 0 {
+        dac *= count_paths("svr", "dac", &lines, &keymap);
+        dac *= count_paths("fft", "out", &lines, &keymap);
+    }
+    let mut fft = count_paths("fft", "dac", &lines, &keymap);
+    if fft != 0 {
+        fft *= count_paths("svr", "fft", &lines, &keymap);
+        fft *= count_paths("dac", "out", &lines, &keymap);
+    }
+
+    let output = fft + dac;
 
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
