@@ -24,28 +24,19 @@ fn part_1(input: Vec<String>) -> u64 {
     use std::time::Instant;
     let now = Instant::now();
 
-    //convert to Vec<[i32; 2]>
     let lines: Vec<Vec<&str>> = input
         .iter()
         .map(|line| line.split_whitespace().collect())
         .collect();
 
-    let mut seen: Vec<u16> = vec![0u16; lines.len()];
     let mut keymap: HashMap<String, usize> = HashMap::new();
-    let mut you_idx: usize = 0;
 
     //Compute hashmap
     for (ix, line) in lines.iter().enumerate() {
-        if line[0] == "you:" {
-            you_idx = ix;
-        } else if line.last().unwrap() == &"out" {
-            seen[ix] = 1;
-        }
         let key = line[0].replace(":", "");
         keymap.insert(key, ix as usize);
     }
-
-    let output = search(&you_idx, &keymap, &lines, &mut seen);
+    let output = count_paths("you", "out", &lines, &keymap);
 
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
@@ -57,7 +48,6 @@ fn part_2(input: Vec<String>) -> u64 {
     use std::time::Instant;
     let now = Instant::now();
 
-    //convert to Vec<[i32; 2]>
     let lines: Vec<Vec<&str>> = input
         .iter()
         .map(|line| line.split_whitespace().collect())
@@ -67,8 +57,8 @@ fn part_2(input: Vec<String>) -> u64 {
 
     //Compute hashmap
     for (ix, line) in lines.iter().enumerate() {
-        let key = line[0].replace(":", "");
-        keymap.insert(key, ix as usize);
+        let key = line[0].strip_suffix(":").unwrap();
+        keymap.insert(key.to_string(), ix as usize);
     }
     let dac = count_paths("svr", "dac", &lines, &keymap);
     let fft = count_paths("svr", "fft", &lines, &keymap);
@@ -117,34 +107,10 @@ fn search_trg(
         if dest == &end {
             sum += 1;
         } else {
-            sum += search_trg(&dest, end, lines, keymap, seen);
+            sum += search_trg(dest, end, lines, keymap, seen);
         }
     }
     seen[idx] = sum;
-    return sum;
-}
-
-fn search(
-    idx: &usize,
-    keymap: &HashMap<String, usize>,
-    lines: &Vec<Vec<&str>>,
-    seen: &mut Vec<u16>,
-) -> u16 {
-    if seen[*idx] != 0 {
-        return seen[*idx];
-    }
-    let mut sum: u16 = 0;
-    for (ax, dest) in lines[*idx].iter().enumerate() {
-        if ax == 0 {
-            continue;
-        }
-        if let Some(kix) = keymap.get(*dest) {
-            sum += search(kix, keymap, lines, seen);
-        } else {
-            println!("Key error, key: {}", dest);
-        }
-    }
-    seen[*idx] = sum;
     return sum;
 }
 
@@ -158,12 +124,11 @@ mod tests {
         let val = part_1(input.unwrap());
         assert_eq!(val, 5);
     }
-    /*
+
     #[test]
     fn test_part_2() {
         let input = read_file("test2.txt");
         let val = part_2(input.unwrap());
         assert_eq!(val, 2);
     }
-    */
 }
