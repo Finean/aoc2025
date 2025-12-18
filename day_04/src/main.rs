@@ -25,31 +25,28 @@ fn part_1(input: Vec<String>) -> u32 {
     let now = Instant::now();
     let mut sum: u32 = 0;
 
-    for row in 0..input.len() {
-        for (ix, c_char) in input[row].chars().enumerate() {
-            if c_char == '.' {
+    for (row, line) in input.iter().enumerate() {
+        let bytes = line.as_bytes();
+        for (ix, &c_char) in bytes.iter().enumerate() {
+            if c_char == b'.' {
                 continue;
             }
-            let mut iter: Vec<Option<char>> = vec![];
-            for v_offset in [-1isize, 0, 1] {
+
+            let mut val = 0;
+            for v_offset in -1isize..=1 {
                 let idx = row as isize + v_offset;
-                if idx < 0 {
+                if idx < 0 || idx >= input.len() as isize {
                     continue;
                 }
-                if let Some(line) = input.get(idx as usize) {
-                    for offset in [-1, 0, 1] {
-                        if let Some(&b) = line.as_bytes().get((ix as isize + offset) as usize) {
-                            iter.push(Some(b as char));
-                        } else {
-                            iter.push(None); // out of bounds
-                        }
+                let cur_line = input[idx as usize].as_bytes();
+                for h_offset in -1..=1 {
+                    let c_idx = ix as isize + h_offset;
+                    if c_idx < 0 || c_idx >= cur_line.len() as isize {
+                        continue;
                     }
-                }
-            }
-            let mut val = 0;
-            for i in iter {
-                if i == Some('@') {
-                    val += 1;
+                    if cur_line[c_idx as usize] == b'@' {
+                        val += 1;
+                    }
                 }
             }
             if val <= 4 {
@@ -76,29 +73,27 @@ fn part_2(input: Vec<String>) -> u32 {
         let mut removed = 0;
         let mut to_remove: Vec<(usize, usize)> = vec![];
         let mut temp: Vec<(usize, usize)> = vec![];
+        //Only check coords in check_coords to avoid unnecessary computations
         for coord in &check_coords {
             let c_char = chars[coord.0][coord.1];
             if c_char == '.' {
                 continue;
             }
-            let mut iter: Vec<Option<char>> = vec![];
-            for v_offset in [-1isize, 0, 1] {
+            let mut val = 0;
+            for v_offset in -1isize..=1 {
                 let idx = coord.0 as isize + v_offset;
-                if idx < 0 {
+                if idx < 0 || idx >= input.len() as isize {
                     continue;
                 }
-                if let Some(line) = chars.get(idx as usize) {
-                    for offset in [-1, 0, 1] {
-                        if let Some(&b) = line.get((coord.1 as isize + offset) as usize) {
-                            iter.push(Some(b as char));
-                        }
+                let cur_line = &chars[idx as usize];
+                for h_offset in -1..=1 {
+                    let c_idx = coord.1 as isize + h_offset;
+                    if c_idx < 0 || c_idx >= cur_line.len() as isize {
+                        continue;
                     }
-                }
-            }
-            let mut val = 0;
-            for i in iter {
-                if i == Some('@') {
-                    val += 1;
+                    if cur_line[c_idx as usize] == '@' {
+                        val += 1;
+                    }
                 }
             }
             if val <= 4 {
@@ -122,10 +117,10 @@ fn part_2(input: Vec<String>) -> u32 {
         for coord in to_remove {
             chars[coord.0][coord.1] = '.';
         }
-        check_coords = temp;
         if removed == 0 {
             break;
         }
+        check_coords = temp;
     }
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
