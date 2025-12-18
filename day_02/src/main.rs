@@ -32,15 +32,15 @@ fn part_2(input: &str) -> u64 {
 
     for r in ranges {
         let parts: Vec<&str> = r.split('-').collect();
-        if parts.len() == 2 {
-            let start: u64 = parts[0].parse().unwrap();
-            let end: u64 = parts[1].parse().unwrap();
-            let start_len = (parts[0].len() - 1) as u32;
-            let end_len = (parts[1].len() - 1) as u32;
 
-            sum += p2_invalid_sum(start, end, start_len, end_len);
-        }
+        let start: u64 = parts[0].parse().unwrap();
+        let end: u64 = parts[1].parse().unwrap();
+        let start_len = (parts[0].len() - 1) as u32;
+        let end_len = (parts[1].len() - 1) as u32;
+
+        sum += p2_invalid_sum(start, end, start_len, end_len);
     }
+
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
     println!("Part 2 Sum: {}", sum);
@@ -51,6 +51,7 @@ fn main() -> std::io::Result<()> {
     let content = fs::read_to_string("input.txt")?;
     let _sum_1 = part_1(&content);
     let _sum_2 = part_2(&content);
+
     Ok(())
 }
 
@@ -124,12 +125,13 @@ fn p2_invalid_sum(min: u64, max: u64, base_min: u32, base_max: u32) -> u64 {
     for base in base_min..=base_max {
         //Divisors to check
         let divs = chunk_count(&base);
+
         for divisor in divs {
+            //Calculate min and max value to check
             let str_len = (base + 1) / divisor;
             let min_val = 10u64.pow(str_len - 1);
-            let max_val = 10u64.pow(str_len) - 1;
-
-            for val in min_val..=max_val {
+            let max_val = 10 * min_val;
+            for val in min_val..max_val {
                 let int: u64 = reconstruct(val, divisor);
                 if int > max {
                     break;
@@ -147,28 +149,18 @@ fn p2_invalid_sum(min: u64, max: u64, base_min: u32, base_max: u32) -> u64 {
 }
 
 fn reconstruct(val: u64, divi: u32) -> u64 {
-    let mut sum: u64 = 0;
-    let base = val.to_string().len() as u32;
-    for _ in 0..divi {
-        sum *= 10u64.pow(base) as u64;
-        sum += val;
-    }
-    sum
+    let base = val.ilog10() + 1;
+    let shift = 10u64.pow(base);
+    let numerator = shift.pow(divi) - 1;
+    let denominator = shift - 1;
+    val * (numerator / denominator)
 }
 
 fn chunk_count(base: &u32) -> Vec<u32> {
-    //Returns possible lengths of sequences to check
-    let mut divs = Vec::new();
-    //Number of digits in val
-    let length = (base + 1) as u32;
+    const PRIMES: [u32; 8] = [2, 3, 5, 7, 11, 13, 17, 19];
+    let len = base + 1;
 
-    for i in 2..=length {
-        //If i divides length
-        if (base + 1) % i == 0 {
-            divs.push(i);
-        }
-    }
-    divs
+    PRIMES.iter().copied().filter(|&p| len % p == 0).collect()
 }
 
 #[cfg(test)]
