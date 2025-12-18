@@ -1,21 +1,31 @@
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader};
+use std::time::Instant;
 
 fn main() {
-    let _ = part_1("input.txt".to_string());
-    let _ = part_2("input.txt".to_string());
+    let input = read_file("input.txt");
+    part_1(input.unwrap());
+    let input = read_file("input.txt");
+    part_2(input.unwrap());
 }
 
-fn part_1(file: String) -> io::Result<u64> {
-    use std::time::Instant;
+fn read_file(name: &str) -> std::io::Result<Vec<String>> {
+    let mut list: Vec<String> = Vec::new();
+    let file = File::open(name).expect("File not found");
+    let buf = BufReader::new(file);
+
+    for line in buf.lines() {
+        list.push(line?);
+    }
+    Ok(list)
+}
+
+fn part_1(input: Vec<String>) -> u64 {
     let now = Instant::now();
-    let file = File::open(file)?;
-    let reader = BufReader::new(file);
 
     let mut output = 0;
 
-    for line_result in reader.lines() {
-        let line = line_result?; //Result<String, io::Error>
+    for line in input {
         let bank_size = line.len();
 
         let mut max_digit: u32 = 0;
@@ -37,19 +47,15 @@ fn part_1(file: String) -> io::Result<u64> {
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
     println!("Total output: {}", output);
-    Ok(output.into())
+    output as u64
 }
 
-fn part_2(file: String) -> io::Result<u64> {
-    use std::time::Instant;
+fn part_2(input: Vec<String>) -> u64 {
     let now = Instant::now();
-    let file = File::open(file)?;
-    let reader = BufReader::new(file);
 
     let mut output: u64 = 0;
 
-    for line_result in reader.lines() {
-        let line = line_result?; //Result<String, io::Error>
+    for line in input {
         let bank_size = line.len();
         let mut digits: [u32; 12] = [0; 12];
 
@@ -80,7 +86,7 @@ fn part_2(file: String) -> io::Result<u64> {
     let elapsed = now.elapsed();
     println!("{:.2?}", elapsed);
     println!("Total output: {}", output);
-    Ok(output.into())
+    output
 }
 
 #[cfg(test)]
@@ -89,13 +95,15 @@ mod test {
 
     #[test]
     fn test_part_1() {
-        let val = part_1("test.txt".to_string()).unwrap_or(0);
+        let input = read_file("test.txt");
+        let val = part_1(input.unwrap());
         assert_eq!(val, 357);
     }
 
     #[test]
     fn test_part_2() {
-        let val = part_2("test.txt".to_string()).unwrap_or(0);
+        let input = read_file("test.txt");
+        let val = part_2(input.unwrap());
         assert_eq!(val, 3121910778619);
     }
 }
