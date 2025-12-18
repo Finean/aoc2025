@@ -121,7 +121,15 @@ It turns out we couldn't ignore the whitespace after all. Fortunately if we chan
 
 ## Day 7
 
-Todo
+### Part 1
+
+For day 7 we construct the grid as a Vec<Vec<i32>>, by encoding a '.' as a 0 and a '^' as -1, then go line by line, checking whether the character below each beam is a '.' or a '^', when the beam splits we then set the adjacent points on the row below to have value 1. 
+
+To get our output we then sum all the value on the bottom row.
+
+### Part 2 
+
+For part 2 we do exactly the same as in part 1, but instead of setting the value to 1 when the beam splits, we add the current value of the beam to the adjacent points on the row below.
 
 ## Day 8
 
