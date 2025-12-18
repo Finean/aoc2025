@@ -5,8 +5,8 @@ All times exclude file read times.
 | Day | Part 1 (ms) | Part 2 (ms) | Total (ms) |
 |-----|--------|--------|-------|
 | 1   | 0.027    | 0.046    | 0.073 |
-| 2   | 0.008    | 1.40    | 1.41 |
-| 3   | 0.048    | 0.14   | 0.19 |
+| 2   | 0.008    | 1.35    | 1.36 |
+| 3   | 0.026    | 0.12   | 0.15 |
 | 4   | 0.53    | 0.99   | 1.52 |
 | 5   | 0.076    | 0.038   | 0.11 |
 | 6   | 0.060    | 0.12   | 0.18 |
@@ -18,6 +18,32 @@ All times exclude file read times.
 | 12  | 0.090    |     | 0.090 |
 
 # Walkthrough
+
+## Contents
+
+[Day 1](#day-1)
+
+[Day 2](#day-2)
+
+[Day 3](#day-3)
+
+[Day 4](#day-4)
+
+[Day 5](#day-5)
+
+[Day 6](#day-6)
+
+[Day 7](#day-7)
+
+[Day 8](#day-8)
+
+[Day 9](#day-9)
+
+[Day 10](#day-10)
+
+[Day 11](#day-11)
+
+[Day 12](#day-12)
 
 ## Day 1
 
@@ -39,7 +65,7 @@ We can then add on 36 to our position counter and use :
 
 `if (pos <= 0 || pos >= 100)` to test if our dial has then passed 0 an additional time.
 
-**Warning** If we start on 0 and have an input such as R200 our program will incorrectly add an additional rotation to our output accumulator, to fix this we can simply temporarily store our previous dial position and replace the previous if statement with: 
+**Warning!** If we start on 0 and have an input such as R200 our program will incorrectly add an additional rotation to our output accumulator, to fix this we can simply temporarily store our previous dial position and replace the previous if statement with: 
 
 `if ((pos <= 0 || pos >= 100) && prev_pos != 0) && rem != 0`
 
@@ -70,3 +96,75 @@ With this approach we also need to be aware that some numbers may appear more th
 ## Day 3
 
 ### Part 1
+
+The logic behind our approach to part 1 today is fairly straightforward. Let's use the example input `8853249223`. To make the largest possible joltage from this input we use the following rules:
+
+1) We want our first (most significant) digit to be the largest possible value in the input - note that this cannot be the last digit in the input (we should prioritise earlier digits in the input here)
+2) We want our second (least significant) digit to be the largest possible value after our first digit
+
+To ensure that this gives us the maximum value we can simply use a for loop to go from left to right and check whether using this digit would give a higher joltage. 
+
+### Part 2
+
+For part 2 we now have 12 digits to choose from out input. We can use the same approach as we had for part 1. We prioritise the earlier, more significant, digits while also being aware that the ith digit (starting at 0 for the most significant) must be chosen from elements i..( input.len() - 12 - i) of our input.
+
+## Day 4
+
+### Part 1
+
+To solve part 1 all we need to do is go through the input 1 by 1 and count the number of adjacent rolls of paper.
+
+### Part 2
+
+To solve part 2 we can use our code from part 1 and put it inside a loop which exits when we haven't removed a roll of paper in this iteration. We can optimise our approach slightly here by only checking squares adjacent to ones which changed during the last iteration (or all squares during our first).
+
+## Day 5
+
+### Part 1
+
+Our approach for part 1 includes 2 parts:
+
+1) We turn our set of fresh ingredient ID ranges into a sorted vector of non-overlapping ranges
+2) We go through the list of available ingredient IDs and use a binary search on the sorted ranges to check whether our ingredient is fresh
+
+This approach solves the problem in ~80μs, the main difficulties here are writing a binary search function which works on ranges, and merging possibly overlapping ranges in our sorted vector. This can be slightly optimised by merging the ranges [A, B] [B+1, C], as while they technically aren't overlapping there are no elements in between these ranges.
+
+### Part 2
+
+For part 2 we can then use our vector of sorted ID ranges to quickly find the answer.
+
+**Warning!** The range [a, b] contains b - a + 1 elements. Ensure your vector of ranges is non-overlapping.
+
+## Day 6
+
+### Part 1
+
+Day 6 is mainly a problem in parsing our input, for part 1 all we need to do is separate the individual numbers and correctly identify the last line of the input for our operation. Getting the answer is then straightforward.
+
+### Part 2
+
+It turns out we couldn't ignore the whitespace after all. Fortunately if we change how our function parses the input we can store the input digits in a Vector, and then take vertical slices of each line of vectors until we reach only whitespace to parse the numbers. The input also includes inconsistent choices between numbers starting and ending with whitespace so we need to make sure we're parsing this correctly as we calculate the sum.
+
+## Day 7
+
+Todo
+
+## Day 8
+
+Todo
+
+## Day 9
+
+Todo
+
+## Day 10
+
+Todo
+
+## Day 11
+
+Todo
+
+## Day 12
+
+Todo
