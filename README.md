@@ -57,7 +57,7 @@ In this example we see that and number which is 3 digits long cannot be invalid,
 
 We approach the problem like this:
 
-For a given range X-Y we consider the possible lengths of numbers in the range, for `933-1048` we have [3, 4]. We can immediately ignore any odd values in this range. For the even lengths we start by considering the smallest possible invalid value (for 4 this is 1010) and then try every consecutive invalid value until we exceed the value of Y, e.g. `1010...1111` -> [terminates ` as `1111 > 1048`]. This finds every invalid value as we can construct these invali values in an increasing sequence from all the numbers (starting at 100...) of length `n / 2`. This allows us to find the number of invalid values in about 10μs.
+For a given range X-Y we consider the possible lengths of numbers in the range, for `933-1048` we have [3, 4]. We can immediately ignore any odd values in this range. For the even lengths we start by considering the smallest possible invalid value (for 4 this is 1010) and then try every consecutive invalid value until we exceed the value of Y, e.g. `1010...1111` -> [terminates as `1111 > 1048`]. This finds every invalid value as we can construct these invali values in an increasing sequence from all the numbers (starting at 100...) of length `n / 2`. This allows us to find the number of invalid values in about 10μs.
 
 We can optimise this approach for larger ranges such as [3, 4, 5, 6, 7] as we can easily calculate the number of invalid values of length 4 and 6 without testing whether are inside the range or not.
 
